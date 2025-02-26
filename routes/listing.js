@@ -17,11 +17,15 @@ const validateListing = (req, res, next) => {
     }
 };
 
-//index route
 router.get("/", wrapAsync(async (req, res, next) => {
-    const allListings = await Listing.find({});
-    res.render("listings/index.ejs", { allListings });
+    try {
+        const allListings = await Listing.find({});
+        res.render("listings/index.ejs", { allListings });
+    } catch (error) {
+        next(new ExpressError(500, "Internal Server Error")); // Handle potential errors
+    }
 }));
+
 
 // new route
 router.get("/new", wrapAsync(async (req, res, next) => {
@@ -42,15 +46,16 @@ router.get("/:id", wrapAsync(async (req, res, next) => {
     }
 }));
 
-//Create route
-router.post("/",
-    validateListing,
-    wrapAsync(async (req, res, next) => {
+router.post("/", validateListing, wrapAsync(async (req, res, next) => {
+    try {
         const newListing = new Listing(req.body.listing);
         await newListing.save();
         res.redirect("/listings");
-    })
-);
+    } catch (error) {
+        next(new ExpressError(500, "Internal Server Error")); // Handle potential errors
+    }
+}));
+
 
 //edit route
 router.get("/:id/edit", wrapAsync(async (req, res, next) => {
@@ -60,13 +65,16 @@ router.get("/:id/edit", wrapAsync(async (req, res, next) => {
 }));
 
 
-//Update route
 router.put("/:id", validateListing, wrapAsync(async (req, res, next) => {
-
-    let { id } = req.params;
-    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-    res.redirect(`/listings/${id}`);
+    try {
+        let { id } = req.params;
+        await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+        res.redirect(`/listings/${id}`);
+    } catch (error) {
+        next(new ExpressError(500, "Internal Server Error")); // Handle potential errors
+    }
 }));
+
 
 //delete route
 router.delete("/:id", wrapAsync(async (req, res, next) => {

@@ -1,4 +1,6 @@
 const express = require("express");
+require('dotenv').config(); // Load environment variables from .env file
+
 const app = express();
 const mongoose = require("mongoose");
 const Listing = require("./models/listing.js");
@@ -13,7 +15,8 @@ const Review = require("./models/review.js");
 
 const listings=require("./routes/listing.js");
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/wanderlust"; // Use environment variable or fallback to local
+
 main().then(() => {
     console.log("connected to DB");
 }).catch(err => {
@@ -87,6 +90,7 @@ app.use((err, req, res, next) => {
     res.status(statusCode).send(message);
 });
 
-app.listen(1912, () => {
+app.listen(process.env.PORT || 1912, () => { // Use environment variable for port
+
     console.log("Server is listening to port 1912");
 });

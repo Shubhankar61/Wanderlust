@@ -3,7 +3,11 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const reviewSchema = new Schema({
-    comment: String,
+    comment: {
+        type: String,
+        required: true, // Ensure comment is provided
+        maxlength: 500 // Limit comment length
+    },
     rating: {
         type: Number,
         min: 1,
@@ -12,7 +16,12 @@ const reviewSchema = new Schema({
     createAt: {
         type: Date, 
         default: Date.now()
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now // Automatically set updatedAt to the current date
     }
 });
+
 
 module.exports=mongoose.model("Review", reviewSchema);
