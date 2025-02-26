@@ -1,6 +1,4 @@
 const express = require("express");
-require('dotenv').config(); // Load environment variables from .env file
-
 const app = express();
 const mongoose = require("mongoose");
 const Listing = require("./models/listing.js");
@@ -14,9 +12,9 @@ const Review = require("./models/review.js");
 
 
 const listings=require("./routes/listing.js");
+const reviews=require("./routes/review.js");
 
-const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/wanderlust"; // Use environment variable or fallback to local
-
+const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 main().then(() => {
     console.log("connected to DB");
 }).catch(err => {
@@ -40,45 +38,39 @@ app.get("/", wrapAsync(async (req, res, next) => {
 
 
 
-const validateReview = (req, res, next) => {
-    const { error } = reviewSchema.validate(req.body);
-    if (error) {
-        const errmsg = error.details.map((el) => el.message).join(",");
-        throw new ExpressError(400, errmsg); // Changed status code to 400 for validation errors
-    }
-    next();
-}
+
 
 
 app.use("/listings",listings);
+app.use("/listings/:id/reviews",reviews);
 
 
 
 
 //Reviews
 //Post Review Route
-app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res) => {
-    let listing = await Listing.findById(req.params.id);
-    let newReview = new Review(req.body.review);
+// app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res) => {
+//     let listing = await Listing.findById(req.params.id);
+//     let newReview = new Review(req.body.review);
 
-    listing.reviews.push(newReview);
-    await listing.save();
-    await newReview.save();
+//     listing.reviews.push(newReview);
+//     await listing.save();
+//     await newReview.save();
 
-    res.redirect(`/listings/${listing.id}`);
+//     res.redirect(`/listings/${listing.id}`);
 
-    console.log("new review saved");
+//     console.log("new review saved");
 
-}));
+// }));
 
-//Delete Review Route
-app.delete(
-    "/listings/:id/reviews/:reviewId",wrapAsync(async(req,res)=>{
-        let {id,reviewId}=req.params;
-        await Listing.findByIdAndUpdate(id, {$pull:{reviews:reviewId}});
-        await Review.findByIdAndDelete(reviewId);
-        res.redirect(`/listings/${id}`);
-}));
+// //Delete Review Route
+// app.delete(
+//     "/listings/:id/reviews/:reviewId",wrapAsync(async(req,res)=>{
+//         let {id,reviewId}=req.params;
+//         await Listing.findByIdAndUpdate(id, {$pull:{reviews:reviewId}});
+//         await Review.findByIdAndDelete(reviewId);
+//         res.redirect(`/listings/${id}`);
+// }));
 
 
 app.all("*", (req, res, next) => {
@@ -90,7 +82,6 @@ app.use((err, req, res, next) => {
     res.status(statusCode).send(message);
 });
 
-app.listen(process.env.PORT || 1912, () => { // Use environment variable for port
-
+app.listen(1912, () => {
     console.log("Server is listening to port 1912");
 });
