@@ -37,10 +37,8 @@ router.post("/", wrapAsync(async (req, res) => {
         console.error("Error saving review or listing:", err);
         throw new ExpressError(500, "Internal Server Error");
     }
-
+    req.flash("success","The Review is Added!");
     res.redirect(`/listings/${listing._id}`);
-    console.log("new review saved");
-
 }));
 
 //Delete Review Route
@@ -51,7 +49,7 @@ router.delete("/:reviewId", async (req, res) => {
 
     await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } }); // Remove review reference
     await Review.findByIdAndDelete(reviewId); // Delete review itself
-
+    req.flash("success","The Review is Deleted!");
     res.redirect(`/listings/${id}`);
 });
 
