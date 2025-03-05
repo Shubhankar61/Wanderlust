@@ -20,6 +20,10 @@ const reviewSchema = new Schema({
     updatedAt: {
         type: Date,
         default: Date.now // Automatically set updatedAt to the current date
+    },
+    author:{
+        type:Schema.Types.ObjectId,
+        ref:"User",
     }
 });
 
