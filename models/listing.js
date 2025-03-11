@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const review = require("./review");
+const { string } = require("joi");
 const Schema = mongoose.Schema;
 
 const listingSchema = new mongoose.Schema({
@@ -9,8 +10,8 @@ const listingSchema = new mongoose.Schema({
     },
     description: String,
     image: {
-        type: String,
-        set: (v) => v == "" ? "https://wallpapercave.com/wp/wp2153319.jpg" : v,
+        url:String,
+        filename:String,
     },
     price: {
         type: Number,
