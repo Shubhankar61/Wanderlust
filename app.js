@@ -1,4 +1,4 @@
-if(process.env.Node_ENV!="production"){
+if (process.env.Node_ENV != "production") {
     require("dotenv").config();
 }
 
@@ -12,6 +12,7 @@ const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
+const MongoStore = require('connect-mongo');
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -24,14 +25,18 @@ const reviews = require("./routes/review.js");
 const user = require("./routes/user.js");
 const req = require("express/lib/request.js");
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+// const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const dbURL = process.env.ATLASDB_URL;
+
+
 main().then(() => {
     console.log("connected to DB");
 }).catch(err => {
     console.error(err);
 });
+
 async function main() {
-    await mongoose.connect(MONGO_URL);
+    await mongoose.connect(dbURL);
 }
 
 app.set("view engine", "ejs");
@@ -52,7 +57,16 @@ const sessionOptions = {
     },
 };
 
-
+const store = MongoStore.create({
+    mongoUrl: dbURL,
+    crypto: {
+        secret: "nirvana",
+    },
+    touchAfter: 24 * 360,
+});
+store.on("error", () => {
+    console.log("Erorr in mongo store",err);
+});
 
 // app.get("/", async (req, res, next) => {
 //     res.send("I am shubh");
@@ -87,7 +101,7 @@ app.use((req, res, next) => {
 // Router use
 app.use("/listings", listings);
 app.use("/listings/:id/reviews", reviews);
-app.use("/",user);
+app.use("/", user);
 
 
 
